@@ -1,3 +1,5 @@
+from flask_restx import abort
+
 from dao.genre import GenreDAO
 
 
@@ -8,8 +10,10 @@ class GenreService:
     def get_one(self, bid):
         return self.dao.get_one(bid)
 
-    def get_all(self):
-        return self.dao.get_all()
+    def get_all(self, paginate):
+        if int(paginate) > 0:
+            return self.dao.get_all(paginate)
+        abort(404)
 
     def create(self, genre_d):
         return self.dao.create(genre_d)

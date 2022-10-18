@@ -8,26 +8,19 @@ class MovieDAO:
     def get_one(self, bid):
         return self.session.query(Movie).get(bid)
 
-    def get_all(self):
-        # А еще можно сделать так, вместо всех методов get_by_*
-        # t = self.session.query(Movie)
-        # if "director_id" in filters:
-        #     t = t.filter(Movie.director_id == filters.get("director_id"))
-        # if "genre_id" in filters:
-        #     t = t.filter(Movie.genre_id == filters.get("genre_id"))
-        # if "year" in filters:
-        #     t = t.filter(Movie.year == filters.get("year"))
-        # return t.all()
-        return self.session.query(Movie).all()
-
-    def get_by_director_id(self, val):
-        return self.session.query(Movie).filter(Movie.director_id == val).all()
-
-    def get_by_genre_id(self, val):
-        return self.session.query(Movie).filter(Movie.genre_id == val).all()
-
-    def get_by_year(self, val):
-        return self.session.query(Movie).filter(Movie.year == val).all()
+    def get_all(self, filters):
+        t = self.session.query(Movie)
+        if filters.get("director_id") is not None:
+            t = t.filter(Movie.director_id == filters.get("director_id"))
+        if filters.get("genre_id") is not None:
+            t = t.filter(Movie.genre_id == filters.get("genre_id"))
+        if filters.get("year") is not None:
+            t = t.filter(Movie.year == filters.get("year"))
+        if filters.get("newiest") is not None:
+            t = t.order_by(Movie.year)
+        if filters.get("paginate") is not None:
+            t = t.limit(12).offset(12 * (int(filters.get("paginate")) - 1))
+        return t.all()
 
     def create(self, movie_d):
         ent = Movie(**movie_d)
