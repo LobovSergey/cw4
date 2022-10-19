@@ -11,9 +11,9 @@ class GenreService:
         return self.dao.get_one(bid)
 
     def get_all(self, paginate):
-        if int(paginate) > 0:
-            return self.dao.get_all(paginate)
-        abort(404)
+        if int(paginate) < 1:
+            abort(404)
+        return self.dao.get_all(paginate)
 
     def create(self, genre_d):
         return self.dao.create(genre_d)

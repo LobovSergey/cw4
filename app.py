@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restx import Api
 
-from config import Config
+from config import config
 from setup_db import db
 from views.auth import auth_ns
 from views.directors import director_ns
@@ -25,8 +25,9 @@ def register_extensions(app):
     api.add_namespace(auth_ns)
 
 
-app = create_app(Config())
-app.debug = True
+app = create_app(config)
+with create_app(config).app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(host="localhost", port=10001, debug=True)

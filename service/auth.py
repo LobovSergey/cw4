@@ -3,11 +3,10 @@ import calendar
 import datetime
 import hashlib
 import hmac
-
 import jwt
+from flask import current_app
 from flask_restx import abort
 
-from constant import ALGO, PWD_HASH_SALT, PWD_HASH_ITERATIONS, SECRET_HERE
 from service.user import UserService
 
 
@@ -26,27 +25,22 @@ class AuthService:
             if not self.compare_paswords(user.password, password):
                 raise abort(400)
 
-        data = {'email': user.email,
-                'role': user.role}
+        data = {'email': user.email}
 
-        min30 = datetime.datetime.utcnow() + datetime.timedelta(seconds=1)
-        data['exp'] = calendar.timegm(min30.timetuple())
-        access_token = jwt.encode(data, SECRET_HERE, algorithm=ALGO)
-        d30 = datetime.datetime.utcnow() + datetime.timedelta(days=30)
-        data['exp'] = calendar.timegm(d30.timetuple())
-        refresh_token = jwt.encode(data, SECRET_HERE, algorithm=ALGO)
+        access_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=current_app.config['TOKEN_EXPIRE_MINUTES'])
+        data['exp'] = calendar.timegm(access_time.timetuple())
+        access_token = jwt.encode(data, current_app.config['SECRET_KEY'], algorithm=current_app.config['ALGO'])
+        refresh_time = datetime.datetime.utcnow() + datetime.timedelta(days=current_app.config['TOKEN_EXPIRE_DAYS'])
+        data['exp'] = calendar.timegm(refresh_time.timetuple())
+        refresh_token = jwt.encode(data, current_app.config['SECRET_KEY'], algorithm=current_app.config['ALGO'])
 
         return {'access_token': access_token,
                 'refresh_token': refresh_token}
 
     def approve_refresh_tokens(self, token):
-        try:
-            data = jwt.decode(jwt=token, key=SECRET_HERE, algorithms=[ALGO])
-            email = data.get('email')
-            return self.generate_token(email, None, is_refresh=True)
-
-        except Exception:
-            abort(401)
+        data = jwt.decode(jwt=token, key=current_app.config['SECRET_KEY'], algorithms=current_app.config['ALGO'])
+        email = data.get('email')
+        return self.generate_token(email, None, is_refresh=True)
 
     def compare_paswords(self, db_password, json_password):
         return hmac.compare_digest(
@@ -54,5 +48,5 @@ class AuthService:
             hashlib.pbkdf2_hmac(
                 'sha256',
                 json_password.encode('utf-8'),
-                PWD_HASH_SALT,
-                PWD_HASH_ITERATIONS))
+                current_app.config['PWD_HASH_SALT'],
+                current_app.config['PWD_HASH_ITERATIONS']))

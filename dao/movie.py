@@ -1,3 +1,5 @@
+from flask import current_app
+
 from dao.model.movie import Movie
 
 
@@ -19,7 +21,8 @@ class MovieDAO:
         if filters.get("newiest") is not None:
             t = t.order_by(Movie.year)
         if filters.get("paginate") is not None:
-            t = t.limit(12).offset(12 * (int(filters.get("paginate")) - 1))
+            t = t.limit(current_app.config['ITEMS_PER_PAGE']).offset(
+                current_app.config['ITEMS_PER_PAGE'] * (int(filters.get("paginate")) - 1))
         return t.all()
 
     def create(self, movie_d):

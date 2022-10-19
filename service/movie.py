@@ -1,5 +1,3 @@
-from flask_restx import abort
-
 from dao.movie import MovieDAO
 
 
@@ -11,9 +9,7 @@ class MovieService:
         return self.dao.get_one(bid)
 
     def get_all(self, filters):
-        if int(filters.get('page')) > 0:
-            return self.dao.get_all(filters)
-        abort(404)
+        return self.dao.get_all(filters)
 
     def create(self, movie_d):
         return self.dao.create(movie_d)

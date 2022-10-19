@@ -1,3 +1,5 @@
+from flask import current_app
+
 from dao.model.genre import Genre
 
 
@@ -10,7 +12,8 @@ class GenreDAO:
 
     def get_all(self, paginate):
         if paginate is not None:
-            return self.session.query(Genre).limit(12).offset(12 * (int(paginate) - 1))
+            return self.session.query(Genre).limit(current_app.config['ITEMS_PER_PAGE']).offset(
+                current_app.config['ITEMS_PER_PAGE'] * (int(paginate) - 1))
         return self.session.query(Genre).all()
 
     def create(self, genre_d):
