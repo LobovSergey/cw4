@@ -33,3 +33,22 @@ class UserService:
         user_email = decoded_token.get("email")
 
         return self.dao.get_by_name(user_email)
+
+    def partical_update(self, data):
+        user = self.dao.get_by_id(data.get('id'))
+
+        if 'name' in data:
+            user.name = data.get('name')
+        if 'surname' in data:
+            user.surname = data.get('surname')
+        if 'email' in data:
+            user.email = data.get('email')
+        if 'favorite_genre' in data:
+            user.favorite_genre = data.get('favorite_genre')
+
+        self.dao.partical_update(user)
+
+    def update_password(self, data):
+        user = self.dao.get_by_id(data.get('id'))
+        user.password = self.get_hash_password(data.get('password_1'))
+        self.dao.partical_update(user)

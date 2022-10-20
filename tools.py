@@ -7,7 +7,7 @@ def authentication_required(func):
         if 'Authorization' not in request.headers:
             abort(401)
 
-        data = request.headers['Authorization']
+        data = request.headers.get('Authorization')
         token = data.split("Bearer ")[-1]
         print(token)
         try:

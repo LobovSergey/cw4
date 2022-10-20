@@ -3,6 +3,7 @@ import calendar
 import datetime
 import hashlib
 import hmac
+
 import jwt
 from flask import current_app
 from flask_restx import abort
@@ -27,7 +28,8 @@ class AuthService:
 
         data = {'email': user.email}
 
-        access_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=current_app.config['TOKEN_EXPIRE_MINUTES'])
+        access_time = datetime.datetime.utcnow() + datetime.timedelta(
+            minutes=current_app.config['TOKEN_EXPIRE_MINUTES'])
         data['exp'] = calendar.timegm(access_time.timetuple())
         access_token = jwt.encode(data, current_app.config['SECRET_KEY'], algorithm=current_app.config['ALGO'])
         refresh_time = datetime.datetime.utcnow() + datetime.timedelta(days=current_app.config['TOKEN_EXPIRE_DAYS'])
@@ -50,3 +52,12 @@ class AuthService:
                 json_password.encode('utf-8'),
                 current_app.config['PWD_HASH_SALT'],
                 current_app.config['PWD_HASH_ITERATIONS']))
+
+    def check_password(self, data):
+        if data.get('password_1') is None or data.get('password_2') is None:
+            abort(404)
+
+        if not self.compare_paswords(self.service.get_hash_password(data.get('password_1')), data.get('password_2')):
+            abort(401)
+
+        self.service.update_password(data)
