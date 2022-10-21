@@ -37,5 +37,6 @@ class UserView(Resource):
         token = data_token.split("Bearer ")[-1]
         user = user_service.get_user_by_token(token)
         data['id'] = user.id
+        data['password_db'] = user.password
         auth_service.check_password(data)
         return 'Password updated', 204

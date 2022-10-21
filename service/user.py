@@ -50,5 +50,5 @@ class UserService:
 
     def update_password(self, data):
         user = self.dao.get_by_id(data.get('id'))
-        user.password = self.get_hash_password(data.get('password_1'))
+        user.password = self.get_hash_password(data.get('password_2'))
         self.dao.partical_update(user)

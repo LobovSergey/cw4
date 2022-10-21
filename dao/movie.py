@@ -1,4 +1,5 @@
 from flask import current_app
+from sqlalchemy import desc
 
 from dao.model.movie import Movie
 
@@ -19,7 +20,7 @@ class MovieDAO:
         if filters.get("year") is not None:
             t = t.filter(Movie.year == filters.get("year"))
         if filters.get("newiest") is not None:
-            t = t.order_by(Movie.year)
+            t = t.order_by(desc(Movie.year))
         if filters.get("paginate") is not None:
             t = t.limit(current_app.config['ITEMS_PER_PAGE']).offset(
                 current_app.config['ITEMS_PER_PAGE'] * (int(filters.get("paginate")) - 1))

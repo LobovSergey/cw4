@@ -7,7 +7,7 @@ class UserDAO:
         self.session = session
 
     def create_user(self, data):
-        user = User(*data)
+        user = User(**data)
         self.session.add(user)
         self.session.commit()
 

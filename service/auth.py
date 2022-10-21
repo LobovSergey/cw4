@@ -57,7 +57,7 @@ class AuthService:
         if data.get('password_1') is None or data.get('password_2') is None:
             abort(404)
 
-        if not self.compare_paswords(self.service.get_hash_password(data.get('password_1')), data.get('password_2')):
+        if not self.compare_paswords(data.get("password_db"), data.get('password_1')):
             abort(401)
 
         self.service.update_password(data)
